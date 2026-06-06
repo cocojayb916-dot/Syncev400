@@ -303,9 +303,11 @@ document.addEventListener('DOMContentLoaded', showLogin);
 function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
-  // Accept anything — user just needs to fill both fields
   if (!u) { alert('Please enter a username.'); return; }
   document.getElementById('login').style.display = 'none';
+  // Play audio after user interaction (required by browsers)
+  const audio = document.getElementById('bg-audio');
+  if (audio) { audio.volume = 0.6; audio.play().catch(() => {}); }
   showDesktop();
 }
 function loginCancel() {
@@ -313,8 +315,7 @@ function loginCancel() {
   document.getElementById('loginPass').value = '';
 }
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
-
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });    
 // ═══════════════════════ DESKTOP ═══════════════════════
 function showDesktop() {
   document.getElementById('desktop').style.display = 'block';
