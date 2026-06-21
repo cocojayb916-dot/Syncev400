@@ -903,7 +903,10 @@ function route(){
   else { renderHome(); }
 }
 window.addEventListener('hashchange', route);
-route();
+(async function init(){
+  await restoreSession();
+  route();
+})();
 
 })();
 </script>
