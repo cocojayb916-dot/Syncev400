@@ -266,6 +266,7 @@ async function registerAccount(username, password){
   }
   refreshSessionFromUser(user);
   startPresence(uid);
+  await persistSession(uid);
   return {user};
 }
 async function loginAccount(username, password){
@@ -285,12 +286,33 @@ async function loginAccount(username, password){
   }
   refreshSessionFromUser(user);
   startPresence(uid);
+  await persistSession(uid);
   return {user};
 }
 function logout(){
   if(session) stopPresence(session.uid);
   session = null;
+  clearPersistedSession();
   route('home');
+}
+
+/* ---------- remembering who's logged in across a page refresh ----------
+   Uses the artifact's personal (non-shared) storage — separate from the
+   browser localStorage/sessionStorage that artifacts can't use — so the
+   session is private to this browser/visitor and survives a reload. */
+async function persistSession(uid){ await sSet('session:current', JSON.stringify({uid}), false); }
+async function clearPersistedSession(){ await sDel('session:current', false); }
+async function restoreSession(){
+  const raw = await sGet('session:current', false);
+  if(!raw) return false;
+  try{
+    const {uid} = JSON.parse(raw);
+    const user = await gJSON('user:'+uid, true);
+    if(!user) return false;
+    refreshSessionFromUser(user);
+    startPresence(uid);
+    return true;
+  }catch(e){ return false; }
 }
 
 /* ---------- online presence (who's logged in right now) ---------- */
